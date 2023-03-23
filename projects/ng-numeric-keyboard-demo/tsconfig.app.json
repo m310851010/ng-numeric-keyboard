@@ -5,8 +5,8 @@
     "outDir": "../../out-tsc/app",
     "types": [],
     "paths": {
-      "@xmagic/ng-numeric-keyboard": ["dist/ng-numeric-keyboard"],
-      "@xmagic/ng-numeric-keyboard/*": ["dist/ng-numeric-keyboard/*"]
+      "@xmagic/ng-numeric-keyboard": ["dist/ng-numeric-keyboard", "projects/ng-numeric-keyboard/src/public-api"],
+      "@xmagic/ng-numeric-keyboard/*": ["dist/ng-numeric-keyboard/*", "projects/ng-numeric-keyboard/src/lib/*"]
     }
   },
   "files": ["src/main.ts", "src/polyfills.ts"],

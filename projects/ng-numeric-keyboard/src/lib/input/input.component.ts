@@ -11,7 +11,8 @@ import {
   ApplicationRef,
   EmbeddedViewRef,
   forwardRef,
-  ViewContainerRef
+  Injector,
+  ComponentFactoryResolver
 } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 
@@ -19,7 +20,7 @@ import { NumericKeyboardComponent } from '../keyboard/keyboard.component';
 
 import * as Keys from '../utils/keys';
 import { coerceBooleanProperty, animate } from '../utils/utils';
-import {Layout, LayoutsType} from '../utils/layouts';
+import { Layout, LayoutsType } from '../utils/layouts';
 
 const RNumber = /^\d*(?:\.\d*)?$/;
 const RTel = /^\d*$/;
@@ -141,7 +142,8 @@ export class NumericInputComponent implements OnInit, OnDestroy, AfterViewInit, 
   constructor(
     private element: ElementRef,
     private appRef: ApplicationRef,
-    private viewContainerRef: ViewContainerRef
+    private componentFactoryResolver: ComponentFactoryResolver,
+    private injector: Injector
   ) {}
 
   ngOnInit() {
@@ -207,7 +209,9 @@ export class NumericInputComponent implements OnInit, OnDestroy, AfterViewInit, 
   }
 
   createKeyboard(el, options, events, callback) {
-    const componentRef = this.viewContainerRef.createComponent(NumericKeyboardComponent);
+    const componentRef = this.componentFactoryResolver
+      .resolveComponentFactory(NumericKeyboardComponent)
+      .create(this.injector);
 
     Object.assign(componentRef.instance, options);
 
@@ -218,7 +222,8 @@ export class NumericInputComponent implements OnInit, OnDestroy, AfterViewInit, 
     }
 
     this.appRef.attachView(componentRef.hostView);
-    el.appendChild((componentRef.hostView as EmbeddedViewRef<any>).rootNodes[0] as HTMLElement);
+    const element = (componentRef.hostView as EmbeddedViewRef<any>).rootNodes[0] as HTMLElement;
+    el.appendChild(element);
 
     callback(componentRef);
   }
@@ -438,6 +443,6 @@ export class NumericInputComponent implements OnInit, OnDestroy, AfterViewInit, 
 }
 
 export interface InputOptions {
-    layout: keyof LayoutsType | Layout;
-    entertext: string;
+  layout: keyof LayoutsType | Layout;
+  entertext: string;
 }
