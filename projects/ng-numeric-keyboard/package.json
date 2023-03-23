@@ -1,0 +1,27 @@
+{
+  "name": "@xmagic/ng-numeric-keyboard",
+  "version": "1.0.0",
+  "description": "Number keyboard for mobile browsers For Angular",
+  "author": "m310851010",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/m310851010/ng-numeric-keyboard.git"
+  },
+  "bugs": {
+    "url": "https://github.com/m310851010/ng-numeric-keyboard/issues"
+  },
+  "homepage": "https://github.com/m310851010/ng-numeric-keyboard",
+  "keywords": [
+    "angular",
+    "angular13",
+    "angular14",
+    "keyboard",
+    "numeric",
+    "numeric-keyboard",
+    "mobile",
+    "mobile keyboard",
+    "number keyboard"
+  ],
+  "license": "MIT",
+  "peerDependencies": {}
+}
