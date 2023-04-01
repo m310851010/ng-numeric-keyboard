@@ -17,21 +17,30 @@
 </div>
 
 <div class="content" role="main">
-  <div class="input">
-    <ng-numeric-input layout="phone" entertext="Next" placeholder="键盘和输入框"></ng-numeric-input>
+  <div>
+    <div class="input">
+      <ng-numeric-input layout="phone" entertext="Next" placeholder="键盘和输入框"></ng-numeric-input>
+    </div>
   </div>
 
-  <input type="text" #input class="input" placeholder="keyboardService创建" />
-  <textarea
-    ngKeyboard
-    layout="tel"
-    entertext="完成"
-    class="input"
-    style="height: 100px"
-    placeholder="ngKeyboard指令创建"
-  ></textarea>
+  <div>
+    <input type="text" #input class="input" placeholder="keyboardService创建" />
+  </div>
 
-  <input type="text" class="input" ngKeyboard placeholder="ngKeyboard指令创建" layout="phone" />
+  <div>
+    <textarea
+      ngKeyboard
+      layout="tel"
+      entertext="完成"
+      class="input"
+      style="height: 100px"
+      placeholder="ngKeyboard指令创建"
+    ></textarea>
+  </div>
+
+  <div>
+    <input type="text" class="input" ngKeyboard placeholder="ngKeyboard指令创建" layout="phone" />
+  </div>
   <div class="tip">提示: PC浏览器请切换到仿真设备查看</div>
 
   <!-- Footer -->
