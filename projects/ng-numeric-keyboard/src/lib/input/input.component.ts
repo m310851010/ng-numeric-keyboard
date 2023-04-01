@@ -378,6 +378,7 @@ export class NumericInputComponent implements OnInit, OnDestroy, AfterViewInit, 
     elContainer.appendChild(elKeyboard);
     document.body.appendChild(elContainer);
 
+    const inputHandler = this.input.bind(this);
     this.createKeyboard(
       elKeyboard,
       {
@@ -385,7 +386,8 @@ export class NumericInputComponent implements OnInit, OnDestroy, AfterViewInit, 
         entertext: this.kp.entertext
       },
       {
-        press: this.input.bind(this)
+        press: inputHandler,
+        longPress: inputHandler
       },
       keyboard => this.set('keyboard', keyboard)
     );
@@ -440,9 +442,4 @@ export class NumericInputComponent implements OnInit, OnDestroy, AfterViewInit, 
     this.dispatch('blur');
     KeyboardCenter.unregister(null);
   }
-}
-
-export interface InputOptions {
-  layout: keyof LayoutsType | Layout;
-  entertext: string;
 }

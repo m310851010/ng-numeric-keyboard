@@ -1,46 +1,100 @@
-import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnInit, OnDestroy } from '@angular/core';
 import { ENTER, DEL, ESC } from '../utils/keys';
-import { Layout, Layouts, LayoutsType } from '../utils/layouts';
+import { Layout, LayoutItem, Layouts, LayoutsType } from '../utils/layouts';
+import { filter, fromEvent, map, merge, of, Subject, takeUntil, timer } from 'rxjs';
 
 @Component({
   selector: 'ng-numeric-keyboard',
   templateUrl: './keyboard.component.html',
   styleUrls: ['./keyboard.component.scss']
 })
-export class NumericKeyboardComponent implements OnInit {
+export class NumericKeyboardComponent implements OnInit, OnDestroy {
   @Input() layout: KeyboardOptions['layout'] = 'number';
   @Input() entertext: string = 'Enter';
 
-  @Output() press = new EventEmitter<number | string>();
+  @Output() press = new EventEmitter<string>();
   @Output() enterpress = new EventEmitter();
+  /**
+   * 长按
+   */
+  @Output() longPress = new EventEmitter<string>();
+  /**
+   * 长按
+   */
+  @Output() longEnterpress = new EventEmitter();
 
+  /**
+   * 长按结束
+   */
+  @Output() longPressEnd = new EventEmitter<string>();
+  /**
+   * 长按结束
+   */
+  @Output() longEnterpressEnd = new EventEmitter();
+
+  touchStart?: TouchEvent;
+  destroy$ = new Subject<void>();
+
+  _keyItem?: LayoutItem;
   public kp: KeyboardOptions;
   public ks: { resolvedLayout: Layout };
   public ENTER = ENTER;
   public DEL = DEL;
   public ESC = ESC;
 
+  touchEnd$ = new Subject<LayoutItem>();
+  touchMove$ = fromEvent(document, 'touchmove').pipe(takeUntil(this.destroy$));
+
+  constructor() {}
+
   ngOnInit() {
     const options = { layout: this.layout, entertext: this.entertext };
     this.init(options);
   }
 
-  dispatch(event: string, payload?: number | string) {
-    switch (event) {
-      case 'press':
-        this.press.emit(payload);
-        break;
-      case 'enterpress':
-        this.enterpress.emit();
-        break;
-    }
+  stopEvent(event: TouchEvent) {
+    event.stopPropagation();
+    event.preventDefault();
   }
 
-  onTouchend(key: any) {
-    this.dispatch('press', key);
-    if (key === ENTER) {
-      this.dispatch('enterpress');
+  onTouchStart(event: TouchEvent, item: LayoutItem) {
+    this._keyItem = item;
+    this.touchStart = event;
+    timer(500)
+      .pipe(map(() => item))
+      .pipe(takeUntil(merge(this.touchEnd$, this.touchMove$)))
+      .subscribe(value => {
+        // 超过500ms为长按
+        this.touchStart = undefined;
+        this.longPress.emit(value.key);
+        if (value.key === ENTER) {
+          this.longEnterpress.emit();
+        }
+      });
+  }
+  onTouchEnd(event: TouchEvent, item: LayoutItem) {
+    this._keyItem = undefined;
+    this.touchEnd$.next(item);
+
+    // 长按结束
+    if (!this.touchStart) {
+      this.longPressEnd.emit(item.key);
+      if (item.key === ENTER) {
+        this.longEnterpressEnd.emit(item.key);
+      }
     }
+
+    of(item)
+      .pipe(
+        filter(() => this.touchStart !== undefined),
+        takeUntil(this.touchMove$)
+      )
+      .subscribe(value => {
+        this.press.emit(value.key);
+        if (value.key === ENTER) {
+          this.enterpress.emit();
+        }
+      });
   }
 
   private init(options: KeyboardOptions) {
@@ -62,9 +116,14 @@ export class NumericKeyboardComponent implements OnInit {
     this.kp = options;
     this.ks = { resolvedLayout };
   }
+
+  ngOnDestroy() {
+    this.destroy$.next(); // 发出一个值，通知所有订阅了 destroy$ 的可观察对象停止向下传递值
+    this.destroy$.complete(); // 停止 destroy$ 的传播，释放资源
+  }
 }
 
 export interface KeyboardOptions {
-  layout: keyof LayoutsType | Layout;
-  entertext: string;
+  layout?: keyof LayoutsType | Layout;
+  entertext?: string;
 }
